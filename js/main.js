@@ -1,6 +1,7 @@
 (function (window) {
     'use strict';
     let storage = {}
+    let pasteFormat = 'us'; // 'us' | 'eu', set from options page via popup
     let Calc = document.querySelector('.calc-main'),
         display = Calc.querySelector('.calc-display span'),
         notification = Calc.querySelector(".notification"),
@@ -141,14 +142,8 @@
 
         // listen for paste event from parent
         if (event.data?.type === 'paste') {
-            const pastedText = event.data.text;
-
-            render(parseFloat(pastedText + '') + '');
-            calculator[brackets].curr = true;
-            keyBoard['AC'].children[0].firstChild.data = 'C';
-            if (frozenKey) freezeKey(frozenKey, true);
-            notification.innerHTML = 'Paste';
-            fade(notification);
+            if (event.data.numberFormat) pasteFormat = event.data.numberFormat;
+            doPaste(event.data.text);
 
             // handle storage data from parent
         } else if (event.data?.type === 'storage') {
@@ -156,6 +151,7 @@
             try {
                 // recover after reload or crash...
                 const storageMs = JSON.parse(event.data.text);
+                if (storageMs && storageMs['numberFormat']) pasteFormat = storageMs['numberFormat'];
 
                 if (!storageMs || !storageMs['resBuffer']) {
                     return; // for the very first run or after fatal crash
@@ -374,15 +370,24 @@
     }, false);
 
     document.body.addEventListener('paste', function (e) {
-        render(parseFloat(e.clipboardData.getData("Text") + '') + '');
-        calculator[brackets].curr = true;
-        keyBoard['AC'].children[0].firstChild.data = 'C';
-        if (frozenKey) freezeKey(frozenKey, true);
         e.preventDefault();
-        notification.innerHTML = 'Paste';
+        doPaste(e.clipboardData.getData('Text'));
+    }, false);
+
+    function doPaste(text) {
+        const val = window.parsePasted(text, pasteFormat);
+        if (Number.isNaN(val)) {
+            notification.innerHTML = 'Invalid paste';
+        } else {
+            render(val + '');
+            calculator[brackets].curr = true;
+            keyBoard['AC'].children[0].firstChild.data = 'C';
+            if (frozenKey) freezeKey(frozenKey, true);
+            notification.innerHTML = 'Paste';
+        }
         fade(notification);
         notification.style.display = 'unset';
-    }, false);
+    }
 
     document.body.addEventListener('copy', function (e) {
         hiddenCopy.textContent = resBuffer.replace(/\s/g, '');

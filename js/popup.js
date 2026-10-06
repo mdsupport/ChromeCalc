@@ -3,8 +3,10 @@ const iframe = document.getElementById('calc-iframe');
 // listen for messages from the iframe
 window.addEventListener('message', (event) => {
     if (event.data?.command == 'clear-storage') {
-        // Clear localStorage
+        // Clear localStorage, but keep user settings
+        const numberFormat = localStorage.getItem('numberFormat');
         localStorage.clear();
+        if (numberFormat !== null) localStorage.setItem('numberFormat', numberFormat);
     } else if (event.data?.command == 'set-storage') {
         // Set values in localStorage
         for (const key in event.data.storage) {
@@ -40,13 +42,14 @@ document.addEventListener('paste', function (e) {
     // Get clipboard data
     const clipboardData = e.clipboardData || window.clipboardData;
     const pastedText = clipboardData.getData('text/plain');
-    iframe.contentWindow.postMessage({ type: 'paste', text: pastedText }, '*');
+    const numberFormat = JSON.parse(localStorage.getItem('numberFormat') || '"us"');
+    iframe.contentWindow.postMessage({ type: 'paste', text: pastedText, numberFormat }, '*');
 });
 
 // pass storage data to the iframe
 iframe.addEventListener('load', () => {
     // Get values from localStorage
-    const keys = ['resBuffer', 'bigger', 'ln', 'secondActive', 'deg', 'memory', 'buffStr'];
+    const keys = ['resBuffer', 'bigger', 'ln', 'secondActive', 'deg', 'memory', 'buffStr', 'numberFormat'];
     const storageData = {};
 
     keys.forEach(key => {

@@ -206,3 +206,6 @@ html, body {
     color: #fff;
     text-decoration: none;
 }
+.settings label { cursor: pointer; -webkit-user-select: text; }
+.settings input { margin-right: .5em; }
+.settings .saved { color: #9fd89f; font-size: .9em; }

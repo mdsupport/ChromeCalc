@@ -33,6 +33,17 @@
 
         </div>
 
+        <div class="features settings">
+            <h2 class="logo title">Settings</h2>
+            <p>Paste number format &mdash; used only when a pasted number like <code>1,234</code> or
+                <code>1.234</code> could be read either way.</p>
+            <label><input type="radio" name="numberFormat" value="us"> US: <code>1,234.56</code>
+                (comma = thousands, dot = decimal)</label><br>
+            <label><input type="radio" name="numberFormat" value="eu"> European: <code>1.234,56</code>
+                (dot = thousands, comma = decimal)</label>
+            <p class="saved" id="saved">&nbsp;</p>
+        </div>
+
         <div class="features">
             <h2 class="logo title">Using the Calculator</h2>
             <div>
@@ -435,6 +446,7 @@
         <p>© <a href="https://raad.dev" target="blank">raad.dev</a> all rights reserved.</p>
     </div>
 
+    <script src="js/options.js"></script>
 </body>
 
 </html>
